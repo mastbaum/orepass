@@ -1,5 +1,5 @@
-webpy-couchdb
-=============
+orepass
+=======
 
-This is a collection of tools for making couchdb actually usable with the help of web.py.
+This is a collection of python middleware tools for making couchdb actually usable.
 
