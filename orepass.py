@@ -55,12 +55,29 @@ users = {'asdf1234': 'bob'}
 # couchdb singleton
 couch = CouchDatabase('http://localhost:5984')
 
-def orepass(environ, start_response):
+def validate_view_doc(username, doc):
+    '''check if the user has permission to read the document'''
+    if not 'security' in doc:
+        return True
+    if username in doc['security']['readers']['names']:
+        return True
+    if username in doc['security']['admins']['names']:
+        return True
+    return False
+
+def render_response(start_response, status, response_body=''):
+    '''generate an http response from status code and body'''
+    response_headers = [('Content-Type', 'text/plain'), ('Content-Length', str(len(response_body)))]
+    start_response(status, response_headers)
+    return [response_body]
+
+def main(environ, start_response):
     '''get json as if from a query directly to a couchdb server, but filtered
     based on in-document security settings.'''
     status = '501 NOT IMPLEMENTED'
     response_body = ''
 
+    # determine user from browser cookie matched with server-side token
     try:
         cookies = parse_qs(environ['HTTP_COOKIE'])
         auth_token = cookies['optoken'][0]
@@ -75,53 +92,36 @@ def orepass(environ, start_response):
         # root of db
         if len(path) == 1:
             try:
-                print couch[dbname].info()
-                response_body = json.dumps(couch[dbname].info())
-                status = '200 OK'
+                return render_response('200 OK', json.dumps(couch[dbname].info()))
             except TypeError:
-                status = '404 NOT FOUND'
+                return render_response(start_response, '404 NOT FOUND')
             except couchdb.ResourceNotFound:
-                status = '404 NOT FOUND'
+                return render_response(start_response, '404 NOT FOUND')
 
-        # access a document or built-in view
+        # document or built-in view
         if len(path) == 2:
             if path[1] == '_all_docs':
                 view = couch[dbname].view('_all_docs', None, include_docs=True)
                 result = {'total_rows': 0, 'offset': view.offset, 'rows': []}
                 for row in view.rows:
-                    print row['doc']
-                    if not 'security' in row['doc'] or username in row['doc']['security']['readers']['names'] or username in row['doc']['security']['admins']['names']:
+                    if validate_view_doc(username, row['doc']):
                         del row['doc']
                         result['rows'].append(row)
                         result['total_rows'] += 1
-                    else:
-                        print 'NOPE!'
-                response_body = json.dumps(result)
-                status = '200 OK'
+                return render_response(start_response, '200 OK', json.dumps(result))
             else:
                 docid = path[1]
-                print dbname, docid
                 try:
-                    if not 'security' in couch[dbname][docid] or username in couch[dbname][docid]['security']['readers']['names'] or username in couch[dbname][docid]['security']['admins']['names']:
-                            response_body = json.dumps(couch[dbname][docid])
-                            status = '200 OK'
+                    if validate_view_doc(username, row['doc']):
+                        return render_response(start_response, '200 OK', json.dumps(couch[dbname][docid]))
                     else:
-                        status = '401 FORBIDDEN'
+                        return render_response(start_response, '401 FORBIDDEN')
                 except TypeError:
-                    status = '404 NOT FOUND'
+                    return render_response(start_response, '404 NOT FOUND')
                 except couchdb.ResourceNotFound:
-                    status = '404 NOT FOUND'
-
-        # access an attachment
-
-
-    response_headers = [('Content-Type', 'text/plain'),
-                  ('Content-Length', str(len(response_body)))]
-    start_response(status, response_headers)
-
-    return [response_body]
+                    return render_response(start_response, '404 NOT FOUND')
 
 # serve forever on localhost:8051
-httpd = make_server('', 8051, orepass)
+httpd = make_server('', 8051, main)
 httpd.serve_forever()
 
