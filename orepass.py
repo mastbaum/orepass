@@ -14,7 +14,7 @@ class CouchDatabase():
         '''connect to db based on standard-formatted url string'''
         match = re.match(r'((?P<protocol>.+):\/\/)?((?P<user>.+):(?P<pw>.+)?@)?(?P<host>.+)(:(?P<port>.+)).?', url)
         if not match:
-            raise 
+            raise ValueError
         self.protocol = match.group('protocol')
         self.host = match.group('host')
         self.port = match.group('port')
@@ -69,7 +69,7 @@ def orepass(environ, start_response):
     except KeyError:
         username = ''
 
-    path = environ['PATH_INFO'].lstrip(os.sep).split(os.sep)
+    path = environ['PATH_INFO'].lstrip(os.sep).split(os.sep, 3)
     dbname = path[0]
     if environ['REQUEST_METHOD'] == 'GET':
         # root of db
@@ -83,20 +83,37 @@ def orepass(environ, start_response):
             except couchdb.ResourceNotFound:
                 status = '404 NOT FOUND'
 
-        # access a document or attachment
+        # access a document or built-in view
         if len(path) == 2:
-            docid = path[1]
-            print dbname, docid
-            try:
-                if not 'security' in couch[dbname][docid] or username in couch[dbname][docid]['security']['readers']['names'] or username in couch[dbname][docid]['security']['admins']['names']:
-                        response_body = json.dumps(couch[dbname][docid])
-                        status = '200 OK'
-                else:
-                    status = '401 FORBIDDEN'
-            except TypeError:
-                status = '404 NOT FOUND'
-            except couchdb.ResourceNotFound:
-                status = '404 NOT FOUND'
+            if path[1] == '_all_docs':
+                view = couch[dbname].view('_all_docs', None, include_docs=True)
+                result = {'total_rows': 0, 'offset': view.offset, 'rows': []}
+                for row in view.rows:
+                    print row['doc']
+                    if not 'security' in row['doc'] or username in row['doc']['security']['readers']['names'] or username in row['doc']['security']['admins']['names']:
+                        del row['doc']
+                        result['rows'].append(row)
+                        result['total_rows'] += 1
+                    else:
+                        print 'NOPE!'
+                response_body = json.dumps(result)
+                status = '200 OK'
+            else:
+                docid = path[1]
+                print dbname, docid
+                try:
+                    if not 'security' in couch[dbname][docid] or username in couch[dbname][docid]['security']['readers']['names'] or username in couch[dbname][docid]['security']['admins']['names']:
+                            response_body = json.dumps(couch[dbname][docid])
+                            status = '200 OK'
+                    else:
+                        status = '401 FORBIDDEN'
+                except TypeError:
+                    status = '404 NOT FOUND'
+                except couchdb.ResourceNotFound:
+                    status = '404 NOT FOUND'
+
+        # access an attachment
+
 
     response_headers = [('Content-Type', 'text/plain'),
                   ('Content-Length', str(len(response_body)))]
