@@ -4,15 +4,17 @@ orepass aims to wrap all of the CouchDB API features that can be implemented in 
 
 HTTP responses and status codes are generally constructed to look like normal CouchDB responses -- it is important that the user not know that they are getting 206 Partial Content. orepass tries to be as transparent as possible.
 
+orepass matches the following URL patterns, and blacklists unmatched patterns by default. (Otherwise, were a new CouchDB version were to add an /_other_all_docs view, data could be leaked to unauthorized users).
+
 CouchDB Server API
-====================
+==================
 The server API provides access to server configuration data and operations, and is generally useful to administrators but not the general public. If CouchDB does not already provide authentication, orepass will pass through HTTP authentication headers to allow CouchDB admin users, but return 404 instead of 401 if authentication fails.
 
 [HEAD|GET] /
 ------------
 Returns the welcome message and version
 
-Authentication: Blacklisted by default
+Authentication: None
 
 [HEAD|GET] /_config
 -------------------
