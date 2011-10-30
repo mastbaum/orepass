@@ -48,22 +48,26 @@ class CouchDatabase():
     def __getitem__(self, item):
         return self.couch.__getitem__(item)
 
-    def validate_view_doc(self, doc, username):
+    def get_doc_roles(self, doc, username):
         '''check if the user is permitted to see the document'''
         if not 'security' in doc:
-            return True
-        if username in doc['security']['readers']['names']:
-            return True
+            return 'admin' # admin party!
         if username in doc['security']['admins']['names']:
-            return True
-        return False
+            return 'admin'
+        if username in doc['security']['readers']['names']:
+            return 'reader'
+        return None
 
     def get_validated(self, dbname, id, username):
         '''get only if the user has permission to read the document'''
         doc = self.couch[dbname][id]
-        if self.validate_view_doc(doc, username):
+        if self.get_doc_roles(doc, username) == 'admin':
             return doc
-        raise couchdb.Unauthorized 
+        if self.get_doc_roles(doc, username) == 'reader':
+            del doc.security
+            return doc
+        else:
+            raise couchdb.Unauthorized
 
     def post_validated(self, dbname, id, username):
         '''post (save) only if the user has permission to modify the document'''
