@@ -1,6 +1,6 @@
 import http
 
-def listfn(couchdb, environ, username):
+def list_function(couchdb, environ, username):
     # HEAD|GET; blacklist
     pass
 

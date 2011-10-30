@@ -68,10 +68,10 @@ def main(environ, start_response):
         r'^(?P<dbname>\w+)\/_compact\/(?P<design>\w+)\/?$': handlers.view.compact,
 
         # show
-        r'^(?P<dbname>\w+)\/_design\/(?P<design>\w+)\/_show/(?P<show>\w+)\/(?P<docid>\w+)\/?$': handlers.showfn.showfn,
+        r'^(?P<dbname>\w+)\/_design\/(?P<design>\w+)\/_show/(?P<show>\w+)\/(?P<docid>\w+)\/?$': handlers.show_function.show_function,
 
         # list
-        r'^(?P<dbname>\w+)\/_design\/(?P<design>\w+)\/_list/(?P<list>\w+)\/(?P<view>\w+)\/?$': handlers.listfn.listfn,
+        r'^(?P<dbname>\w+)\/_design\/(?P<design>\w+)\/_list/(?P<list>\w+)\/(?P<view>\w+)\/?$': handlers.list_function.list_function
     }
 
     try:

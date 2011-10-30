@@ -1,7 +1,7 @@
 import http
 import couchdb
 
-def showfn(couchdb, environ, username):
+def show_function(couchdb, environ, username):
     # HEAD|GET; filtering (read)
     pass
 
