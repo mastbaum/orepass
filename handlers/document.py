@@ -10,6 +10,7 @@ def root(couchdb, environ, username):
 def attachment(couchdb, environ, username):
     # HEAD|GET; filtered (read)
     # PUT|DELETE; filtered (admin)
+    pass
 
 def design(couchdb, environ, username):
     # HEAD|GET|COPY; filtered (read)
@@ -20,4 +21,5 @@ def design(couchdb, environ, username):
 def design_attachment(couchdb, environ, username):
     # HEAD|GET; filtered (read)
     # PUT|DELETE; filtered (admin)
+    pass
 

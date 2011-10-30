@@ -5,7 +5,7 @@ def root(couchdb, environ, username):
     # HEAD|GET|PUT|DELETE; pass
     pass
 
-def revs_limits(couchdb, environ, username):
+def revs_limit(couchdb, environ, username):
     # HEAD|GET|PUT|DELETE; couch
     pass
 

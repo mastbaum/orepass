@@ -1,19 +1,19 @@
 import httplib
+import urllib
 import re
+import base64
 
-class CouchDB():
-    '''python api wrapping the couchdb http api and providing some convenience
-    methods'''
+class Resource():
     def __init__(self, url):
         '''connect to db based on standard-formatted url string'''
-        match = re.match(r'((?P<protocol>.+):\/\/)?((?P<user>.+):(?P<pw>.+)?@)?(?P<host>.+))\/?$', url)
+        match = re.match(r'((?P<protocol>.+):\/\/)?((?P<user>.+):(?P<pw>.+)?@)?(?P<host>.+)\/?$', url)
         if not match:
             raise ValueError('Error in URL string')
         self.protocol = match.group('protocol')
         self.host = match.group('host')
-        self.headers = {'Authorization': 'Basic %s' % base64.encodestring(match.group('user'), match.group('pw'))}
+        self.headers = {'Authorization': 'Basic %s' % base64.encodestring('%s:%s' % (match.group('user'), match.group('pw')))}
 
-    def connect():
+    def connect(self):
         '''open an http(s) connection to this couchdb server'''
         if self.protocol == 'https':
             conn = httplib.HTTPSConnection(self.host)
@@ -21,17 +21,18 @@ class CouchDB():
             conn = httplib.HTTPConnection(self.host)
         return conn
 
-    def request(self, method, url, body=None, headers={}, **params):
+    def request(self, method, url, body='', headers={}, **params):
         '''execute an http request to this couchdb server. params are built into
         the query string.'''
         # build headers and url
-        headers = self.headers.update(headers)
-        url = urljoin(url, path, **params)
+        all_headers = self.headers
+        all_headers.update(headers or {})
+        url = urljoin('/', url, **params)
 
         # make the request
         conn = self.connect()
-        req = conn.request(method, url, body, headers)
-        resp = req.getresponse()
+        conn.request(method, url, body, all_headers)
+        resp = conn.getresponse()
 
         # parse the response
         status = resp.status
