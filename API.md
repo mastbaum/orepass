@@ -16,17 +16,17 @@ Returns the welcome message and version
 
 Authentication: None
 
-[HEAD|GET] /_config
--------------------
-Gets CouchDB server configuration information
-
-Authentication: CouchDB authenticates
-
 [HEAD|GET] /_stats
 ------------------
 Returns server statistics
 
 Authentication: HTTP pass-through with 404 on failure
+
+[HEAD|GET] /_config
+-------------------
+Gets CouchDB server configuration information
+
+Authentication: CouchDB authenticates
 
 POST /_config/[settings]
 ------------------------
@@ -34,8 +34,8 @@ Modify CouchDB server configuration
 
 Authentication: CouchDB authenticates
 
-GET /_active_tasks
-------------------
+[HEAD|GET] /_active_tasks
+-------------------------
 A list of all active tasks.
 
 Authentication: CouchDB authenticates
@@ -52,8 +52,8 @@ Start, stop, or configure a database replication operation
 
 Authentication: HTTP pass-through with 404 on failure
 
-GET /_uuids
------------
+[HEAD|GET] /_uuids
+------------------
 Fetches one or more UUIDs
 
 Authentication: None
