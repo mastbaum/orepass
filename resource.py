@@ -25,9 +25,10 @@ class Resource():
         '''execute an http request to this couchdb server. params are built into
         the query string.'''
         # build headers and url
-        all_headers = self.headers
+        all_headers = self.headers.copy()
         all_headers.update(headers or {})
-        url = urljoin('/', url, **params)
+        url = urljoin('', url, **params)
+        print url
 
         # make the request
         conn = self.connect()
@@ -61,8 +62,8 @@ class Resource():
 
 # helpers from couchdb-python
 def quote(string, safe=''):
-    if isinstance(string, unicode):
-        string = string.encode('utf-8')
+    #if isinstance(string, unicode):
+    #    string = string.encode('utf-8')
     return urllib.quote(string, safe)
 
 def urlencode(data):
@@ -70,8 +71,8 @@ def urlencode(data):
         data = data.items()
     params = []
     for name, value in data:
-        if isinstance(value, unicode):
-            value = value.encode('utf-8')
+        #if isinstance(value, unicode):
+        #    value = value.encode('utf-8')
         params.append((name, value))
     return urllib.urlencode(params)
 
@@ -81,7 +82,7 @@ def urljoin(base, *path, **query):
     retval = [base]
 
     # build the path
-    path = '/'.join([''] + [quote(s) for s in path])
+    path = '/'.join([''] + [s for s in path])
     if path:
         retval.append(path)
 

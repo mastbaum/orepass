@@ -18,9 +18,13 @@ import handlers.show_function
 
 couch = resource.Resource('http://adminuser:adminpass@localhost:5984')
 
+def cookie_me(couch, env, username):
+    return 200, {'Set-cookie': 'optoken=asdf1234'}, 'Cooookies!'
+
 # map tokens (stored in cookies) to users
 # this should be in a real database
-users = {'asdf1234': 'bob'}
+#users = {'asdf1234': 'bob'}
+users = {'asdf1234': 'mastbaum'}
 
 def main(env, start_response):
     '''get json as if from a query directly to a couchdb server, but filtered
@@ -31,16 +35,23 @@ def main(env, start_response):
     # determine user from browser cookie matched with server-side token
     try:
         cookies = parse_qs(env['HTTP_COOKIE'])
+        print cookies
         auth_token = cookies['optoken'][0]
+        print auth_token
         username = users[auth_token]
         print username
     except KeyError:
+        print 'no cookies'
+        print env
         username = ''
 
     path = env['PATH_INFO'].lstrip(os.sep)
 
     # url expression to request handler function map
     handler = {
+        # testing: get a valid user cookie
+        r'^_cookie\/?$': cookie_me,
+
         # server
         r'^\/?$': handlers.server.root,
         r'^_stats\/?$': handlers.server.stats,
