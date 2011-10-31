@@ -1,11 +1,11 @@
 import http
-import couchdb
+from cgi import parse_qs
 
-def all_docs(couchdb, environ, username):
+def all_docs(couch, environ, username):
     # HEAD|GET; row filtering (read)
-    pass
+    return 501, {}, '501 Not implemented'
 
-def bulk_docs(couchdb, environ, username):
+def bulk_docs(couch, environ, username):
     # POST; filter (db write)
-    pass
+    return 501, {}, '501 Not implemented'
 

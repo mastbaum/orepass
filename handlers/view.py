@@ -1,17 +1,7 @@
 import http
 import json
 from cgi import parse_qs
-
-def validate_view_doc(doc, username):
-    '''check if the user is permitted to see the document'''
-    if not 'security' in doc:
-        # FIXME: whitelist by default
-        return True
-    if username in doc['security']['readers']['names']:
-        return True
-    if username in doc['security']['admins']['names']:
-        return True
-    return False
+import validate
 
 def view(couch, env, username):
     '''request handler for view
@@ -30,7 +20,7 @@ def view(couch, env, username):
         view = json.loads(body)
         result = {'total_rows': 0, 'offset': view['offset'], 'rows': []}
         for row in view['rows']:
-            if validate_view_doc(row['doc'], username):
+            if validate.validate_view_doc(row['doc'], username):
                 del row['doc'] # FIXME: unless user asked for it in query
                 result['rows'].append(row)
                 result['total_rows'] += 1
@@ -40,15 +30,15 @@ def view(couch, env, username):
         return status, headers, body
     return 405, {}, ''
 
-def temp_view(couchdb, environ, username):
+def temp_view(couch, environ, username):
     # POST; couch
-    pass
+    return 501, {}, '501 Not implemented'
 
-def view_cleanup(couchdb, environ, username):
+def view_cleanup(couch, environ, username):
     # POST; couch
-    pass
+    return 501, {}, '501 Not implemented'
 
-def compact(couchdb, environ, username):
+def compact(couch, environ, username):
     # POST; couch
-    pass
+    return 501, {}, '501 Not implemented'
 

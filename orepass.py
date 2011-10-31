@@ -35,14 +35,9 @@ def main(env, start_response):
     # determine user from browser cookie matched with server-side token
     try:
         cookies = parse_qs(env['HTTP_COOKIE'])
-        print cookies
         auth_token = cookies['optoken'][0]
-        print auth_token
         username = users[auth_token]
-        print username
     except KeyError:
-        print 'no cookies'
-        print env
         username = ''
 
     path = env['PATH_INFO'].lstrip(os.sep)
@@ -59,7 +54,7 @@ def main(env, start_response):
         r'^_active_tasks\/?$': handlers.server.active_tasks,
         r'^_all_dbs\/?$': handlers.server.all_dbs,
         r'^_replicate\/?$': handlers.server.replicate,
-        r'^_uuids\/$': handlers.server.uuids,
+        r'^_uuids\/?$': handlers.server.uuids,
         r'^_session\/?$': handlers.server.session,
 
         # database
@@ -95,6 +90,7 @@ def main(env, start_response):
         h = handler[filter(lambda x: re.match(x, path), handler)[0]]
         return renderer.render_response(*h(couch, env, username))
     except (IndexError, TypeError):
+        print 'unmatched path:', path
         return renderer.render_response(404, {}, '404 Not found :(')
 
 # serve forever on localhost:8051

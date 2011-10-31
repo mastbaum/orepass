@@ -1,6 +1,7 @@
 import http
+from cgi import parse_qs
 
-def list_function(couchdb, environ, username):
+def list_function(couch, environ, username):
     # HEAD|GET; blacklist
-    pass
+    return 501, {}, '501 Not implemented'
 

@@ -1,5 +1,4 @@
 import http
-import couchdb
 from cgi import parse_qs
 
 def root(couch, env, username):
@@ -33,29 +32,38 @@ def stats(couch, env, username):
 def config(couch, env, username):
     # HEAD|GET|POST; couch
     # r'^_config\/(?P<settings>.+)\/?$'
-    pass
+    return 501, {}, '501 Not implemented'
 
 def active_tasks(couch, env, username):
     # HEAD|GET; couch
-    pass
+    return 501, {}, '501 Not implemented'
 
 def all_dbs(couch, env, username):
     # HEAD|GET; pass
-    pass
+    return 501, {}, '501 Not implemented'
 
 def replicate(couch, env, username):
     # HEAD|POST; pass
-    pass
+    return 501, {}, '501 Not implemented'
 
 def uuids(couch, env, username):
-    # HEAD|GET; none
-    pass
+    '''retreive one or more uuids from the server
+    URL: /_uuids
+    Methods: GET
+    Authentication: None
+    '''
+    params = parse_qs(env['QUERY_STRING'] or '')
+    if env['REQUEST_METHOD'] == 'GET':
+        req_headers = {'Content-type': 'application/json'}
+        status, headers, body = couch.get('_uuids', headers=req_headers, **params)
+        return status, headers, body
+    return 405, {}, ''
 
 def session(couch, env, username):
     '''request handler for couchdb session information
     URL: /_session
     Methods: GET, DELETE, POST
-    Authentication: None
+    Authentication: HTTP Authorization pass-through
     '''
     req_headers = {'Content-type': 'application/json'}
     params = parse_qs(env['QUERY_STRING'] or '')

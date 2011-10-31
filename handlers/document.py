@@ -1,25 +1,25 @@
 import http
-import couchdb
+from cgi import parse_qs
 
-def root(couchdb, environ, username):
+def root(couch, environ, username):
     # HEAD|GET|COPY; filtered (read)
     # PUT; filtered (db write)
     # POST|DELETE; filtered (admin)
-    pass
+    return 501, {}, '501 Not implemented'
 
-def attachment(couchdb, environ, username):
+def attachment(couch, environ, username):
     # HEAD|GET; filtered (read)
     # PUT|DELETE; filtered (admin)
-    pass
+    return 501, {}, '501 Not implemented'
 
-def design(couchdb, environ, username):
+def design(couch, environ, username):
     # HEAD|GET|COPY; filtered (read)
     # PUT; filtered (db write)
     # POST|DELETE; filtered (admin)
-    pass
+    return 501, {}, '501 Not implemented'
 
-def design_attachment(couchdb, environ, username):
+def design_attachment(couch, environ, username):
     # HEAD|GET; filtered (read)
     # PUT|DELETE; filtered (admin)
-    pass
+    return 501, {}, '501 Not implemented'
 

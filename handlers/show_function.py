@@ -1,7 +1,7 @@
 import http
-import couchdb
+from cgi import parse_qs
 
-def show_function(couchdb, environ, username):
+def show_function(couch, environ, username):
     # HEAD|GET; filtering (read)
-    pass
+    return 501, {}, '501 Not implemented'
 
