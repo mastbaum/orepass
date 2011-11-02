@@ -65,7 +65,7 @@ def main(env, start_response):
 
         # document
         r'^(?P<dbname>\w+)\/(?P<docid>\w+)\/?$': handlers.document.root,
-        r'^(?P<dbname>\w+)\/[^\_](?P<docid>\w+)\/(?P<attach>.+)$': handlers.document.attachment,
+        r'^(?P<dbname>\w+)\/(?P<docid>\w+)\/(?P<attach>.+)$': handlers.document.attachment,
         r'^(?P<dbname>\w+)\/_design\/(?P<design>\w+)\/?$': handlers.document.design,
         r'^(?P<dbname>\w+)\/_design\/(?P<design>\w+)\/(?P<attach>.+)$': handlers.document.design_attachment,
 
