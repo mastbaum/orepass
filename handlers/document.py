@@ -76,11 +76,8 @@ def attachment(couch, env, username):
     if env['REQUEST_METHOD'] == 'GET':
         status, headers, body = couch.get(doc_path, headers={'Content-type': 'application/json'})
         doc = json.loads(body)
-        print doc
         if validate.validate_view_doc(doc, username):
-            print urllib.quote(path)
-            print 'auth ok'
-            return  couch.get(urllib.quote(path))
+            return couch.get(urllib.quote(path))
         else:
             return 404, {}, '404 Not found'
 
@@ -93,7 +90,21 @@ def design(couch, env, username):
     Authentication: GET|COPY|PUT: Row filtering (read access)
                     POST|DELETE:  Row filtering (admin access)
     '''
-    return root(couch, env, username)
+    req_headers = {'Content-type': 'application/json'}
+    path = env['PATH_INFO'].lstrip('/')
+    params = parse_qs(env['QUERY_STRING'] or '')
+
+    status, headers, body = couch.get(path, headers=req_headers, **params)
+    doc = json.loads(body)
+
+    if env['REQUEST_METHOD'] == 'GET':
+        if validate.validate_view_doc(doc, username):
+            body = json.dumps(doc)
+            return status, headers, body
+        else:
+            return 404, {}, '404 Not found'
+
+    return 501, {}, '501 Not implemented'
 
 def design_attachment(couch, env, username):
     '''request handler for design document attachment
@@ -102,5 +113,19 @@ def design_attachment(couch, env, username):
     Authentication: GET|COPY|PUT: Row filtering (read access)
                     POST|DELETE:  Row filtering (admin access)
     '''
-    return root(couch, env, username)
+    path = env['PATH_INFO'].lstrip('/')
+    params = parse_qs(env['QUERY_STRING'] or '')
+
+    match = re.match(r'^(?P<dbname>\w+)\/_design\/(?P<design>\w+)\/(?P<attach>.+)$', path)
+    doc_path = '/'.join([match.group('dbname'), '_design', match.group('design')])
+
+    if env['REQUEST_METHOD'] == 'GET':
+        status, headers, body = couch.get(doc_path, headers={'Content-type': 'application/json'})
+        doc = json.loads(body)
+        if validate.validate_view_doc(doc, username):
+            return couch.get(urllib.quote(path))
+        else:
+            return 404, {}, '404 Not found'
+
+    return 501, {}, '501 Not implemented'
 
