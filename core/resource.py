@@ -60,19 +60,11 @@ class Resource():
     def post(self, path=None, body=None, headers=None, **params):
         return self.request('POST', path, body=body, headers=headers, **params)
 
-# helpers from couchdb-python
-def quote(string, safe=''):
-    #if isinstance(string, unicode):
-    #    string = string.encode('utf-8')
-    return urllib.quote(string, safe)
-
 def urlencode(data):
     if isinstance(data, dict):
         data = data.items()
     params = []
     for name, value in data:
-        #if isinstance(value, unicode):
-        #    value = value.encode('utf-8')
         params.append((name, value))
     return urllib.urlencode(params)
 
