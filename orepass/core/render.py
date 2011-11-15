@@ -1,4 +1,4 @@
-import handlers.http
+import orepass.handlers.http
 
 class Renderer():
     def __init__(self, start_response):
@@ -11,7 +11,7 @@ class Renderer():
         response_headers['content-length'] = str(len(response_body))
         response_headers = zip(*(response_headers.keys(), response_headers.values()))
         try:
-            status = handlers.http.status[status]
+            status = orepass.handlers.http.status[status]
         except KeyError:
             status = str(status) + ' UNKNOWN'
         self.start_response(status, response_headers)

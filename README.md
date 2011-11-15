@@ -1,8 +1,18 @@
 orepass
 =======
 
-orepass is a Python WSGI middleware layer for making CouchDB actually usable in the wild.
+orepass is a Python WSGI middleware layer for making CouchDB actually usable in the wild by adding document-level user authentication.
 
+Installation
+------------
+Install using the setup.py script:
+
+    python setup.py install
+
+Then, configure your web server to redirect CouchDB requests to orepass. For Apache2, this requires mod_wsgi.
+
+Overview
+--------
 CouchDB's architecture makes per-document security impossible -- users are defined as "readers" or "admins" at the database level, and "readers" have permission to read the entire database and create and edit documents. The "official" solution to this problem is to create a database for every access control group. However, in most applications the relevant access control group is a single user. Filtered replication to duplicate content for many users is not a scalable approach in many cases.
 
 orepass instead adds per-document authentication to CouchDB. Documents are filtered based on a field "security" formatted as for the database:
